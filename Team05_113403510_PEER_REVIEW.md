@@ -47,7 +47,7 @@ Be specific (e.g., "I designed all 12 tables in schema.sql and implemented query
 
 Describe any technical or collaboration difficulties you personally encountered and how you resolved them.
 
-> *Your answer:*
+> The main technical challenge was ensuring the schema matched what the seed scripts expected — for example, national_rail_seat_layouts was missing a code column which caused seeding to fail, and required a full docker-compose down -v reset to resolve. I also had to debug argon2id integration since the original code stored plaintext passwords, and had to restructure execute_booking to wrap both the booking and payment inserts in a single transaction commit to meet the atomicity requirement.
 
 ---
 
