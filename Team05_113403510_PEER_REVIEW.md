@@ -39,8 +39,66 @@
 List the specific tasks, functions, files, or document sections that you were the primary author of.
 Be specific (e.g., "I designed all 12 tables in schema.sql and implemented query_national_rail_availability and execute_booking").
 
-> *Your answer:*
-
+> 在本專案中，我主要負責 PostgreSQL 查詢層的函數實作、密碼安全整合、交易邏輯設計、Schema 合規審查，以及設計文件的部分章節撰寫。
+ 
+---
+ 
+### 查詢函數實作（`queries.py`）
+ 
+實作了所有核心查詢與寫入函數：
+ 
+| 函數 | 類型 |
+|------|------|
+| `query_national_rail_availability` | 查詢 |
+| `query_metro_schedules` | 查詢 |
+| `query_national_rail_fare` | 查詢 |
+| `query_metro_fare` | 查詢 |
+| `query_available_seats` | 查詢 |
+| `query_user_profile` | 查詢 |
+| `query_user_bookings` | 查詢 |
+| `query_payment_info` | 查詢 |
+| `execute_booking` | 寫入 |
+| `execute_cancellation` | 寫入 |
+ 
+---
+ 
+### 密碼安全重構
+ 
+原始程式碼以明文儲存密碼並在 SQL 中直接比對。我將整個認證流程重構為 **argon2id 雜湊**，修改涵蓋以下四個位置：
+ 
+1. **`queries.py` 頂部** — 新增 `argon2` 相關 import
+2. **`register_user()`** — 在 INSERT 前呼叫 `_ph.hash()` 產生雜湊
+3. **`login_user()`** — 改為先用 SQL 取出 hash 字串，再於 Python 層呼叫 `_ph.verify()` 驗證
+   > argon2id 每次雜湊結果不同（鹽值隨機嵌入），無法用 `WHERE password_hash = %s` 直接比對
+4. **`update_password()`** — 改為儲存新雜湊而非明文
+同步更新 `seed_postgres.py` 的 `seed_users()`，使 mock 資料也以 argon2id 雜湊形式寫入資料庫。
+ 
+---
+ 
+### `execute_booking` 原子性修正
+ 
+原始 `execute_booking()` 只 commit 了訂票 INSERT，缺少 payment INSERT。
+ 
+- 補上 `payments` 表的 INSERT
+- 確保訂票與付款兩筆操作包在**同一個 `conn.commit()`** 內
+- 排查並移除程式碼中意外留下的**重複 `conn.commit()` 呼叫**
+---
+ 
+### Schema 審查與除錯（`schema.sql`）
+ 
+- 確認評分標準要求每個資料表的 PK 欄位**旁邊**都需要有 inline 說明，僅靠頂部區塊不符合要求，補齊所有資料表的行內註解
+- 統一說明三層式 PK 策略：
+  - `SERIAL` — 靜態參考表（車站、時刻表）
+  - `UUID` — 敏感交易表（用戶、訂單、付款）
+  - `VARCHAR` 自然鍵 — 領域定義的目錄表（ticket_types、refund_policies）
+- 排查出 `national_rail_seat_layouts` 缺少 `code` 欄位導致 seeding 失敗
+- 確認 Docker volume 保留舊 schema 狀態的機制，需執行 `docker-compose down -v && docker-compose up -d` 才能讓變更生效
+---
+ 
+### 設計文件
+ 
+- 撰寫 **Section 4**（Vector / RAG Design）
+- 撰寫 **Section 5**（AI Tool Usage Evidence）— 挑選並整合多方 AI 使用紀錄，編輯成符合評分格式的五個完整例子
 ---
 
 ### A2. What challenges did you face?
