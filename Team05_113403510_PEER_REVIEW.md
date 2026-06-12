@@ -105,8 +105,64 @@ Be specific (e.g., "I designed all 12 tables in schema.sql and implemented query
 
 Describe any technical or collaboration difficulties you personally encountered and how you resolved them.
 
-> The main technical challenge was ensuring the schema matched what the seed scripts expected — for example, national_rail_seat_layouts was missing a code column which caused seeding to fail, and required a full docker-compose down -v reset to resolve. I also had to debug argon2id integration since the original code stored plaintext passwords, and had to restructure execute_booking to wrap both the booking and payment inserts in a single transaction commit to meet the atomicity requirement.
-
+> ### 挑戰一：Schema 變更未套用至執行中的容器
+ 
+**問題**
+ 
+在 `schema.sql` 新增 `code` 欄位後，seed 腳本仍然報錯：
+ 
+```
+column "code" of relation "national_rail_seat_layouts" does not exist
+```
+ 
+起初以為是 SQL 語法有誤，反覆確認後才意識到 Docker volume 會保留舊的 schema 狀態，直接編輯 `.sql` 檔案對已運行的容器沒有任何效果。
+ 
+**解決方法**
+ 
+執行以下指令，其中 `-v` 參數強制刪除舊 volume，讓資料庫從更新後的 schema 重新初始化：
+ 
+```bash
+docker-compose down -v && docker-compose up -d
+```
+ 
+---
+ 
+### 挑戰二：argon2id 的驗證邏輯與 SQL 比對不相容
+ 
+**問題**
+ 
+改用 argon2id 後，原本 `login_user()` 中的 SQL 比對方式無法繼續使用：
+ 
+```python
+WHERE password_hash = %s  # 無法用於 argon2id
+```
+ 
+由於 argon2id 每次雜湊時會隨機嵌入鹽值，同一個密碼的兩次雜湊結果不同，無法用等號直接比對。
+ 
+**解決方法**
+ 
+改為兩步驟處理：
+ 
+1. 用 SQL 取出儲存的 hash 字串
+2. 在 Python 層呼叫 `_ph.verify()` 進行驗證
+同時確認回傳 dict 前需將 `password_hash` 欄位移除，避免雜湊值外洩給呼叫端。
+ 
+---
+ 
+### 挑戰三：`execute_booking` 的重複 commit bug
+ 
+**問題**
+ 
+在補上 payment INSERT 的過程中，程式碼中意外留下兩個 `conn.commit()` 呼叫。此類錯誤不易從功能層面察覺，psycopg2 不一定會立即拋出明顯錯誤。
+ 
+**解決方法**
+ 
+仔細追蹤整個函數的 transaction 生命週期，確認：
+ 
+- 只有**一個** `conn.commit()`
+- 該 commit 同時涵蓋訂票與付款兩筆 INSERT
+- 符合評分標準的原子性要求
+ 
 ---
 
 ### A3. Self-rating
