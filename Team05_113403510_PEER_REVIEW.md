@@ -169,11 +169,11 @@ WHERE password_hash = %s  # 無法用於 argon2id
 
 | Criterion | Rating (1–5) | Justification (1–2 sentences) |
 |-----------|-------------|-------------------------------|
-| I delivered the tasks assigned to me in the work allocation | | |
-| The quality of my work was satisfactory | | |
-| I communicated well and kept the team informed | | |
-| I met deadlines agreed within the team | | |
-| **Overall self-rating** | | |
+| I delivered the tasks assigned to me in the work allocation | 5 | 負責的查詢函數、密碼安全重構、交易邏輯修正與設計文件章節都有完成，沒有遺漏分配到的項目。 |
+| The quality of my work was satisfactory | 4 | 函數邏輯與評分標準的要求大致符合，但過程中有幾個問題（如缺少欄位、重複 commit）需要除錯才解決，所以沒有給滿分。 |
+| I communicated well and kept the team informed | 5 | 遇到 schema 變更需要重置資料庫這類會影響其他人的問題，都有即時告知組員需要執行的步驟。|
+| I met deadlines agreed within the team | 5 | 分配到的項目都在約定的時間內完成，沒有拖到其他人的進度。|
+| **Overall self-rating** | 4.5 | |
 
 ---
 
@@ -181,7 +181,7 @@ WHERE password_hash = %s  # 無法用於 argon2id
 
 What percentage of the total team effort do you estimate you personally contributed?
 
-> My estimated contribution: **____%**
+> My estimated contribution: **37%**
 
 ---
 
@@ -204,25 +204,25 @@ If your team has 2 members, complete B1 only. If 3 members, complete B1 and B2.
 List the tasks, functions, files, or document sections that this teammate was the primary author of,
 based on what you observed during the project (compare against the work allocation).
 
-> *Your answer:*
+>負責neo4j的部分，完成seed_neo4j、seed.cypher的主架構，後續也有協助schema.sql、queries.py的細項修改。也負責doc裡面的第三部分。也有幫忙把schema裡需要的password部分寫進去，不過沒有hash。
 
 #### Did their actual contribution match the agreed work allocation?
 
-> *Your answer (Yes / Mostly / Partially / No — with explanation):*
+>yes, 她有完成該負責的neo4j的部分，後續我們也有一同檢查。
 
 #### Peer rating for this teammate
 
 | Criterion | Rating (1–5) | Justification (1–2 sentences) |
 |-----------|-------------|-------------------------------|
-| Delivered the tasks assigned in the work allocation | | |
-| Quality of their work was satisfactory | | |
-| Communicated well and kept the team informed | | |
-| Met deadlines agreed within the team | | |
-| **Overall rating for this teammate** | | |
+| Delivered the tasks assigned in the work allocation | 5 | 負責的東西都有做。 |
+| Quality of their work was satisfactory | 4.5 | 大致內容完整，初次檢查就都看得到了，只有再進行小修改調整。但後續幫 |
+| Communicated well and kept the team informed | 5 | 隨時在線上更新幾最新進度並有用merge的pull request，改之前也會確認是否會跟他人conflict。|
+| Met deadlines agreed within the team | 5 | 如期完成自己負責事項，是最早完成的人，也有持續幫忙用AI精進內容。|
+| **Overall rating for this teammate** | 4.5| |
 
 #### Estimated contribution percentage for this teammate
 
-> My estimate of their contribution: **____%**
+> My estimate of their contribution: **30%**
 
 ---
 
@@ -235,25 +235,24 @@ based on what you observed during the project (compare against the work allocati
 
 #### What did this teammate deliver?
 
-> *Your answer:*
-
+> schema.sql, seed_postgres.py最初的主架構，後續出問題也與我一同合作將東西修改，也有幫忙將queries.py（relational的）一起檢查做調整。
 #### Did their actual contribution match the agreed work allocation?
 
-> *Your answer (Yes / Mostly / Partially / No — with explanation):*
+> 大致上符合，因為她負責的為主架構，可是最初的東西有些沒有寫好，也沒有將password另存，所以後續由其他人完成。不過最初把內容寫varchar，最後也有負責把內容改成uuid,serial。
 
 #### Peer rating for this teammate
 
 | Criterion | Rating (1–5) | Justification (1–2 sentences) |
 |-----------|-------------|-------------------------------|
-| Delivered the tasks assigned in the work allocation | | |
-| Quality of their work was satisfactory | | |
-| Communicated well and kept the team informed | | |
-| Met deadlines agreed within the team | | |
-| **Overall rating for this teammate** | | |
+| Delivered the tasks assigned in the work allocation | 4.8 | 有把自己負責項目完成，也有後續繼續修改。 |
+| Quality of their work was satisfactory | 3.7 | 最初寫的東西到最後幾乎被改得不一樣了，中間也多次無法seed資料，而且問題多出現在schema,seed_postgres.py。|
+| Communicated well and kept the team informed | 4 | 有時候會獨自默默作業，在修改某個問題，甚至修好了，但是沒有告訴其他人，所以可能有人先寫好了，她前面做的事就白費了，因為對方不知道她也有寫，所以先推上去了。 |
+| Met deadlines agreed within the team | 4.6 | 最初要完成主架構的時間往後延，也因此需要等她的內容，拖延了一些其他進度。 |
+| **Overall rating for this teammate** | 4.3 | |
 
 #### Estimated contribution percentage for this teammate
 
-> My estimate of their contribution: **____%**
+> My estimate of their contribution: **33%**
 
 ---
 
@@ -263,9 +262,9 @@ All members (including yourself) must sum to 100%.
 
 | Member | Your estimated % | Notes |
 |--------|----------------|-------|
-| Yourself | 40% | |
-| Teammate 1 | 35% | |
-| Teammate 2 | 25% |  |
+| Yourself | 37% | |
+| Teammate 1 | 30% | |
+| Teammate 2 | 33% |  |
 | **Total** | **100%** | |
 
 ---
@@ -274,13 +273,13 @@ All members (including yourself) must sum to 100%.
 
 ### D1. What went well in the team's collaboration?
 
-> *Your answer (2–4 sentences):*
+>大家一同在線上開會，每次開就開七小時以上，一同作業，有問題也願意跳出來解決，出現問題時大家也會有默契的一起修訂標準，更改內容。只要有東西完成推上去，大家也會立馬幫忙測試，看是否可行。
 
 ---
 
 ### D2. What would you do differently if you did this project again?
 
-> *Your answer (2–4 sentences):*
+>在一開始先了解好uuid，serial跟varchar在現實中的採用問題，才不會導致最後需要整個大調整。然後先了解每個電腦是不不同個程式碼測試出來的東西會成效不一樣，才不會陷入不斷修改的迴圈。會希望先分派大家去了解某些觀念，還有確認可以push，才不護有人的本地端無法同步，還要解決這個問題。希望大家可以實體開會，更方便快速看到對方作業。然後重來一次的話，不會以垂直作業為主要分工方式，而是水評分共為主，垂直分工為輔，因為每個人所有東西都會碰到一些。最後，希望有機會可以一開始就用英文註解，後續的註解也花了一點時間。
 
 ---
 
@@ -298,4 +297,4 @@ This is optional. Use it only if there is important context that the ratings abo
 I confirm that this peer review reflects my honest and independent assessment.
 I understand it will be kept confidential from my teammates.
 
-**Signed:** ______________陳少畇________________ **Date:** _______________
+**Signed:** ______________陳少畇________________ **Date:** 2026/06/12
